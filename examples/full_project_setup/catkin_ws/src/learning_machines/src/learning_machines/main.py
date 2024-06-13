@@ -18,7 +18,11 @@ def run_all_actions(rob: IRobobo):
         rob.play_simulation()
 
     if isinstance(rob, SimulationRobobo):
+        print(rob.get_image_front().shape)
+        print(rob.read_irs())
         test_sim(rob)
+
+
 
     # if isinstance(rob, HardwareRobobo):
     #     test_hardware(rob)
