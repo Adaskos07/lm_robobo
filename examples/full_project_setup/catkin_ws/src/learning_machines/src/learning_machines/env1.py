@@ -1,11 +1,11 @@
 import numpy as np
 
-from gymnasium import gym
-from gymnsium.spaces import Box, Tuple, Dict, Discrete, MultiDiscrete
+import gymnasium as gym
+from gymnasium.spaces import Box, Tuple, Dict, Discrete, MultiDiscrete
 
 from robobo_interface import SimulationRobobo, Position, Orientation
 
-from .task1 import move_forward, move_back, move_left, move_right
+from .task1 import move_forward, move_back, turn_left, turn_right
 
 
 class SimEnv1(gym.Env):
@@ -17,7 +17,7 @@ class SimEnv1(gym.Env):
 
             'irs': MultiDiscrete([6,6,6,6,6,6,6,6]),
 
-            'time': Box(high=50_000, dtype=float),
+            'time': Box(low=0, high=50_000, dtype=float),
 
             # 'position': Tuple(
             #     Box(dtype=float),
@@ -30,8 +30,8 @@ class SimEnv1(gym.Env):
         action_map = {
             0: move_forward,
             1: move_back,
-            2: move_right,
-            3: move_left
+            2: turn_right,
+            3: turn_left
         }
 
         action_map[action](self.rob, 1000, 1000)
@@ -60,7 +60,7 @@ class SimEnv1(gym.Env):
     def _get_obs(self):
         position = self.rob.get_position() # not available irl
         irs = self.rob.read_irs()
-        image = self.get_image_front()
+        image = self.rob.get_image_front()
         time = self.rob.get_sim_time()
 
         irs_discrete = np.digitize(irs, [0.0, 2000, 4000, 6000, 8000, 10_000])
