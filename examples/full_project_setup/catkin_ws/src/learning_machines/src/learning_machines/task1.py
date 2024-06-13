@@ -15,6 +15,9 @@ def test_sim(rob: SimulationRobobo):
 def move_forward(rob, speed, duration):
     rob.move_blocking(left_speed=speed, right_speed=speed, millis=duration)
 
+def move_back(rob, speed, duration):
+    rob.move_blocking(left_speed=-speed, right_speed=-speed, millis=duration)
+
 def turn_left(rob, speed, duration):
     rob.move_blocking(left_speed=-speed, right_speed=speed, millis=duration)
 
