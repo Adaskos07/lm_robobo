@@ -1,3 +1,3 @@
-from .test_actions import run_all_actions
+from .main import run_all_actions
 
-__all__ = ("run_all_actions",)
+__all__ = ("main",)

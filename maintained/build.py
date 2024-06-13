@@ -16,6 +16,7 @@ from typing import List, Optional, Sequence, Tuple, Union
 
 # Using Cmake style stuff because what else would I use.
 EXAMPLES = Path(__file__).parent.parent.joinpath("examples").resolve(strict=True)
+# EXAMPLES = Path('/home/adam/Studies/LM/lm_robobo/examples')
 
 COPPELIA_SIM_TUTORIAL = EXAMPLES / "coppelia_sim_tutorial"
 DOCKER_TUTORIAL = EXAMPLES / "docker_tutorial"
