@@ -1,3 +1,3 @@
-from .main import main
+from .runner import robot_run
 
-__all__ = ("main",)
+__all__ = ("robot_runner",)
