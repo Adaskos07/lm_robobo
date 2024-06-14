@@ -41,15 +41,13 @@ def robot_run(rob: IRobobo, max_steps, test_run=False):
             print('Saving model')
             model.save(RESULT_DIR / 'dqn_model')
             print('Model saved')
-
+ 
     if isinstance(rob, HardwareRobobo):
         model = DQN.load(RESULT_DIR / 'dqn_model')
 
-        for _ in range(100):
-            # action = env.action_space.sample()
+        for _ in range(max_steps):
             action, _states = model.predict(observation, deterministic=True)
             action = action.item()
-
             action_map = {
                 0: move_forward,
                 1: move_back,

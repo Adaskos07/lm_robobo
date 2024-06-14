@@ -81,8 +81,3 @@ class SimEnv1(gym.Env):
         irs_discrete = np.digitize(irs, [0, 10, 50, 100, 200, 300])
         observation = irs_discrete
         return observation
-    
-class HardEnv1():
-    pass
-
-    
