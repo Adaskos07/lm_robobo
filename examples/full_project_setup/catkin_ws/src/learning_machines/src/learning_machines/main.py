@@ -11,34 +11,30 @@ from robobo_interface import (
     HardwareRobobo,
 )
 
-from .task1 import test_sim
+from stable_baselines3 import DQN
+from stable_baselines3.common.env_checker import check_env
+
 from .env1 import SimEnv1
 
-def run_all_actions(rob: IRobobo):
-    env = SimEnv1(rob)
-
+def main(rob: IRobobo):
     if isinstance(rob, SimulationRobobo):
-        rob.play_simulation()
-
-    if isinstance(rob, SimulationRobobo):
-        print(rob.get_image_front().shape)
-        print(rob.read_irs())
-        test_sim(rob)
-
+        env = SimEnv1(rob)
+        model = DQN("CnnPolicy", env, verbose=1,
+                    learning_rate=0.001)
+        model.learn(total_timesteps=1000, log_interval=5)
 
         observation, info = env.reset()
 
-        for _ in range(100):
-            action = env.action_space.sample()
-            observation, reward, terminated, truncated, info = env.step(action)
+        # for _ in range(100):
+        #     # action = env.action_space.sample()
+        #     action = model.predict(observation, deterministic=True)
 
-            if terminated or truncated:
-                observation, info = env.reset()
+        #     observation, reward, terminated, truncated, info = env.step(action)
 
-        print(observation)
+        #     if terminated or truncated:
+        #         observation, info = env.reset()
+
+            # print(observation)
 
     # if isinstance(rob, HardwareRobobo):
     #     test_hardware(rob)
-
-    if isinstance(rob, SimulationRobobo):
-        rob.stop_simulation()
