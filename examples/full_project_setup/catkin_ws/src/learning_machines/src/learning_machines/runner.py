@@ -1,6 +1,6 @@
 import cv2
 
-from data_files import FIGRURES_DIR, RESULT_DIR
+from data_files import FIGURES_DIR, RESULT_DIR, MODELS_DIR
 from robobo_interface import (
     IRobobo,
     Emotion,
@@ -16,13 +16,14 @@ from stable_baselines3.common.env_checker import check_env
 
 from .env1 import SimEnv1, move_back, move_forward, turn_left, turn_right
 
-def robot_run(rob: IRobobo, max_steps, test_run=False):
+def robot_run(rob: IRobobo, max_steps,
+              test_run=False, model_name=None, from_checkpoint=False):
     if isinstance(rob, SimulationRobobo):
         env = SimEnv1(rob, max_steps=max_steps, test_run=test_run)
         # check_env(env, warn=True)
 
         if test_run:
-            model = DQN.load(RESULT_DIR / 'dqn_model')
+            model = DQN.load(MODELS_DIR / model_name)
             observation, info = env.reset()
             while True:
                 # action = env.action_space.sample()
@@ -34,16 +35,19 @@ def robot_run(rob: IRobobo, max_steps, test_run=False):
                 if truncated:
                     observation, info = env.reset()
         else:
-            model = DQN("MlpPolicy", env, verbose=1,
-                        learning_rate=0.01)
+            if from_checkpoint:
+                model = DQN.load(MODELS_DIR / model_name, env=env)
+            else:
+                model = DQN("MlpPolicy", env, verbose=1,
+                            learning_rate=0.01)
             model.learn(total_timesteps=1000, log_interval=5)
 
             print('Saving model')
-            model.save(RESULT_DIR / 'dqn_model')
+            model.save(MODELS_DIR / model_name)
             print('Model saved')
  
     if isinstance(rob, HardwareRobobo):
-        model = DQN.load(RESULT_DIR / 'dqn_model')
+        model = DQN.load(MODELS_DIR / model_name)
 
         for _ in range(max_steps):
             action, _states = model.predict(observation, deterministic=True)

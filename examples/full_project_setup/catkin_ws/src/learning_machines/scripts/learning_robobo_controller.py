@@ -13,6 +13,8 @@ def main():
     parser.add_argument('--test_run', action='store_true',
                         help='if specified simulation runs in a test mode, no effect when running on hardware')
     parser.add_argument('--max_steps', type=int, default=50)
+    parser.add_argument('--from_checkpoint', action='store_true')
+    parser.add_argument('--model_name', type=str, default='dqn_model')
     args = parser.parse_args()
 
     if args.hardware:
@@ -20,7 +22,8 @@ def main():
     else:
         rob = SimulationRobobo()
     
-    robot_run(rob, max_steps=args.max_steps, test_run=args.test_run)
+    robot_run(rob, max_steps=args.max_steps, test_run=args.test_run,
+                   model_name=args.model_name, from_checkpoint=args.from_checkpoint)
 
 if __name__ == "__main__":
     main()
