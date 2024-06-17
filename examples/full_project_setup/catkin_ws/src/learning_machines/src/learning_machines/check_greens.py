@@ -15,7 +15,7 @@ def try_hsv(img,name):
     #Calculate percantage of non-black e.g. green pixels
     height, width, _ = img.shape
     number_of_pixels = (height*width)
-    green_pixels = np.sum(np.any(img != [0, 0, 0], axis=-1))
+    green_pixels = np.sum(np.any(green != [0, 0, 0], axis=-1))
     print("Green image:", green)
     print("total_pixels", number_of_pixels)
     percentage = (green_pixels / number_of_pixels) * 100
@@ -56,5 +56,5 @@ def get_green_percentages(image):
         print(f"Percent of green pixels in {name}", green_percentage)
         
         percentages[name] = green_percentage
-    cv2.imwrite(str(FIGRURES_DIR / f"photo_{name}.png"), img)
+        cv2.imwrite(str(FIGRURES_DIR / f"photo_{name}.png"), img)
     return percentages
