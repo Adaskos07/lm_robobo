@@ -14,19 +14,20 @@ from robobo_interface import (
 from stable_baselines3 import DQN
 from stable_baselines3.common.env_checker import check_env
 
-from .env1 import SimEnv1, move_back, move_forward, turn_left, turn_right
+# from .env1 import SimEnv1, move_back, move_forward, turn_left, turn_right
+from .env2 import SimEnv2, move_back, move_forward, turn_left, turn_right
 
 def robot_run(rob: IRobobo, max_steps,
               test_run=False, model_name=None, from_checkpoint=False):
     if isinstance(rob, SimulationRobobo):
-        env = SimEnv1(rob, max_steps=max_steps, test_run=test_run)
+        # env = SimEnv1(rob, max_steps=max_steps, test_run=test_run)
+        env = SimEnv2(rob, max_steps=max_steps, test_run=test_run)
         # check_env(env, warn=True)
 
         if test_run:
             model = DQN.load(MODELS_DIR / model_name)
             observation, info = env.reset()
             while True:
-                # action = env.action_space.sample()
                 action, _states = model.predict(observation, deterministic=True)
 
                 observation, reward, terminated, truncated, info = env.step(action.item())
