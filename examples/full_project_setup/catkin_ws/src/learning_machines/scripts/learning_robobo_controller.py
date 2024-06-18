@@ -12,7 +12,7 @@ def main():
                         help='if specified run on real robot, else simulation')
     parser.add_argument('--test_run', action='store_true',
                         help='if specified simulation runs in a test mode, no effect when running on hardware')
-    parser.add_argument('--max_steps', type=int, default=50)
+    parser.add_argument('--max_steps', type=int, default=100)
     parser.add_argument('--from_checkpoint', action='store_true')
     parser.add_argument('--model_name', type=str, default='dqn_model')
     args = parser.parse_args()

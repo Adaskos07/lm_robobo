@@ -6,7 +6,6 @@ img = cv2.imread('test_img_6.png')
 RESIZE_DIMENSIONS = (128, 128)
 
 
-
 def find_center_of_objects(img):
 
     contours, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -81,12 +80,12 @@ processed_img, resized_img = preprocess_image()
 centers = find_center_of_objects(processed_img)
 distances = find_distance_obj_center(processed_img, centers)
 
-
+"""
 for center in centers:
     cv2.circle(resized_img, (center), 5, (255, 0, 0), -1)
     cv2.imshow('Filled centers', resized_img)
     print(center)
-    cv2.waitKey()
+    cv2.waitKey()"""
 
 print(distances)
 cv2.imshow('Filled centers', resized_img)
