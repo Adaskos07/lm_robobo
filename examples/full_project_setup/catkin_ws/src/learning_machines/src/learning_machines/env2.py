@@ -52,9 +52,9 @@ class SimEnv2(gym.Env):
 
         observation = self._get_obs()
 
-        if self.is_food_consumed(**observation):
+        curr_meal_count = self.rob.nr_food_collected()
+        if self.meal_count < curr_meal_count:
             # in case two or more meals were collected one after another
-            curr_meal_count = self.rob.nr_food_collected()
             nr_meals = curr_meal_count - self.meal_count
             reward = 50 * nr_meals
 
@@ -64,13 +64,12 @@ class SimEnv2(gym.Env):
                 terminated = True
                 reward += 25
                 self.rob.stop_simulation()
-    
         elif self.step_count > self.max_steps:
             reward = -25
             truncated = True
             self.rob.stop_simulation()
         else:
-            reward = -1
+            reward = -(observation['dist'] + 1)
 
         self.step_count += 1
         return observation, reward, terminated, truncated, {}
@@ -107,11 +106,11 @@ class SimEnv2(gym.Env):
 
         img = self.rob.get_image_front()
         distance = get_dist(img, size=self.img_width)
-        # map distance to values from 0 to 4 where 4 means no object
+        # map distance to values from 0 to 3 where 3 means no object
         if distance is None:
-            distance = 4
+            distance = 3
         else:
-            distance = np.digitize([self.img_width // 4, self.img_width // 2])
+            distance = np.digitize(distance, [self.img_width // 4, self.img_width // 2])
 
         observation = {
             'irs': irs_discrete,
