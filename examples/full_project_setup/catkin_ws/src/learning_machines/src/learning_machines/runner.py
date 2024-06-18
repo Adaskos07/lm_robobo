@@ -23,7 +23,6 @@ def robot_run(rob: IRobobo, max_steps,
         # env = SimEnv1(rob, max_steps=max_steps, test_run=test_run)
         env = SimEnv2(rob, max_steps=max_steps, test_run=test_run)
         # check_env(env, warn=True)
-
         if test_run:
             model = DQN.load(MODELS_DIR / model_name)
             observation, info = env.reset()
@@ -41,7 +40,7 @@ def robot_run(rob: IRobobo, max_steps,
             else:
                 model = DQN("MlpPolicy", env, verbose=1,
                             learning_rate=0.01)
-            model.learn(total_timesteps=1000, log_interval=5)
+            model.learn(total_timesteps=50, log_interval=5)
 
             print('Saving model')
             model.save(MODELS_DIR / model_name)

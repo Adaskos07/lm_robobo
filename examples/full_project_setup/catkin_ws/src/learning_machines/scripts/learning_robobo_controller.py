@@ -21,7 +21,7 @@ def main():
         rob = HardwareRobobo(camera=True)
     else:
         rob = SimulationRobobo()
-    
+    print("GETTING HERE")
     robot_run(rob, max_steps=args.max_steps, test_run=args.test_run,
                    model_name=args.model_name, from_checkpoint=args.from_checkpoint)
 
