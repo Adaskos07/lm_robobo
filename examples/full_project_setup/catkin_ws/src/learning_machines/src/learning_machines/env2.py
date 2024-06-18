@@ -7,6 +7,7 @@ from gymnasium.spaces import Discrete, MultiDiscrete
 
 from robobo_interface import SimulationRobobo
 
+from data_files import FIGURES_DIR, RESULT_DIR, MODELS_DIR
 
 def move_forward(rob, speed, duration):
     rob.move_blocking(left_speed=speed, right_speed=speed, millis=duration)
@@ -64,10 +65,16 @@ class SimEnv2(gym.Env):
         super().reset(seed=seed)
         self.rob.stop_simulation()
         self.rob.play_simulation()
-        self.rob.set_phone_tilt(90, 100)
+        self.rob.set_phone_tilt(250, 100)
+        self.rob.sleep(3)
 
         self.step_count = 0
         observation = self._get_obs()
+
+        image = self.rob.get_image_front()
+        # image = cv2.convertScaleAbs(image, alpha=(255.0))
+        cv2.imwrite(MODELS_DIR / 'test_img.jpg', image)
+
         return observation, {}
 
     def close(self):
@@ -75,6 +82,9 @@ class SimEnv2(gym.Env):
     
     def is_collision(self, irs):
         return int(np.mean(irs[2:5])) > 5 or int(np.mean(irs[[0,1,6]])) > 5
+    
+    def simplify_img(img):
+        pass
     
     def _get_obs(self):
         irs = self.rob.read_irs()
