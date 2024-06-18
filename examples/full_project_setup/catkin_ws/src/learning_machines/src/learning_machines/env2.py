@@ -48,7 +48,7 @@ class SimEnv2(gym.Env):
             3: turn_left
         }
         if action < 2: # smaller step when rotating
-            action_map[action](self.rob, 60, 300)
+            action_map[action](self.rob, 100, 500)
         else:
             action_map[action](self.rob, 30, 300)
 
@@ -77,6 +77,7 @@ class SimEnv2(gym.Env):
             reward = -(observation['dist'])
 
         self.step_count += 1
+        self.total_reward += reward
         return observation, reward, terminated, truncated, {}
 
     def reset(self, seed=None, options=None):
