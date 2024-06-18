@@ -29,6 +29,8 @@ class SimEnv2(gym.Env):
         self.step_count = 0
         self.max_steps = max_steps
 
+        self.total_reward = 0
+
         self.meal_count = 0
         self.img_width = 48
 
@@ -45,7 +47,10 @@ class SimEnv2(gym.Env):
             2: turn_right,
             3: turn_left
         }
-        action_map[action](self.rob, 60, 300)
+        if action < 2: # smaller step when rotating
+            action_map[action](self.rob, 60, 300)
+        else:
+            action_map[action](self.rob, 30, 300)
 
         terminated = False
         truncated = False
@@ -69,18 +74,19 @@ class SimEnv2(gym.Env):
             truncated = True
             self.rob.stop_simulation()
         else:
-            reward = -(observation['dist'] + 1)
+            reward = -(observation['dist'])
 
         self.step_count += 1
         return observation, reward, terminated, truncated, {}
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        self.rob.stop_simulation()
-        self.rob.play_simulation()
-
+        self.total_reward = 0
         self.step_count = 0
         self.meal_count = 0
+
+        self.rob.stop_simulation()
+        self.rob.play_simulation()
         observation = self._get_obs()
 
         # image = self.rob.get_image_front()
