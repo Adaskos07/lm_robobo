@@ -1,13 +1,11 @@
-from collections import deque
 import numpy as np
-import cv2
 
 import gymnasium as gym
-from gymnasium.spaces import Discrete, MultiDiscrete, Tuple, Dict
+from gymnasium.spaces import Discrete, MultiDiscrete, Dict
 
 from robobo_interface import SimulationRobobo
 
-from data_files import FIGURES_DIR, RESULT_DIR, MODELS_DIR
+# from data_files import FIGURES_DIR, RESULT_DIR, MODELS_DIR
 
 from .img_proc import get_dist
 
@@ -32,12 +30,11 @@ class SimEnv2(gym.Env):
         self.max_steps = max_steps
 
         self.meal_count = 0
-
         self.img_width = 48
 
         self.action_space = Discrete(4)
         self.observation_space = Dict({
-            'irs': MultiDiscrete([6,6,6,6,6,6,6,6]),
+            'irs': MultiDiscrete([5,5,5,5,5,5,5,5]),
             'dist': Discrete(4)
         })
         
@@ -56,14 +53,20 @@ class SimEnv2(gym.Env):
         observation = self._get_obs()
 
         if self.is_food_consumed(**observation):
-            reward = 100
-            self.meal_count += 1
+            # in case two or more meals were collected one after another
+            curr_meal_count = self.rob.nr_food_collected()
+            nr_meals = curr_meal_count - self.meal_count
+            reward = 50 * nr_meals
+
+            self.meal_count = curr_meal_count
+
             if self.meal_count == 7:
                 terminated = True
                 reward += 25
                 self.rob.stop_simulation()
+    
         elif self.step_count > self.max_steps:
-            reward = -10
+            reward = -25
             truncated = True
             self.rob.stop_simulation()
         else:
@@ -75,11 +78,10 @@ class SimEnv2(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.rob.stop_simulation()
-        self.step_count = 0
-        self.meal_count = 0
         self.rob.play_simulation()
 
-
+        self.step_count = 0
+        self.meal_count = 0
         observation = self._get_obs()
 
         # image = self.rob.get_image_front()
@@ -94,14 +96,18 @@ class SimEnv2(gym.Env):
     def is_food_consumed(self, irs, dist):
         '''Find out if there is a collision with green object
         '''
-        return any([i > 6 for i in irs])
+        return self.meal_count < self.rob.nr_food_collected()
+        # for now we use simulations info
+
+        # return any([i > 3 for i in irs])
     
     def _get_obs(self):
         irs = self.rob.read_irs()
-        irs_discrete = np.digitize(irs, [10, 50, 100, 200, 300])
+        irs_discrete = np.digitize(irs, [10, 100, 200, 300])
 
         img = self.rob.get_image_front()
         distance = get_dist(img, size=self.img_width)
+        # map distance to values from 0 to 4 where 4 means no object
         if distance is None:
             distance = 4
         else:
