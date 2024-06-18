@@ -39,7 +39,7 @@ def robot_run(rob: IRobobo, max_steps,
             if from_checkpoint:
                 model = DQN.load(MODELS_DIR / model_name, env=env)
             else:
-                model = DQN("MlpPolicy", env, verbose=1,
+                model = DQN("MultiInputPolicy", env, verbose=1,
                             learning_rate=0.01)
             model.learn(total_timesteps=1000, log_interval=5)
 
