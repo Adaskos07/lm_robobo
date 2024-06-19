@@ -16,10 +16,10 @@ def move_back(rob, speed, duration):
     rob.move_blocking(left_speed=-speed, right_speed=-speed, millis=duration)
 
 def turn_left(rob, speed, duration):
-    rob.move_blocking(left_speed=-speed, right_speed=speed, millis=duration)
+    rob.move_blocking(left_speed=-speed*0.4, right_speed=speed*0.4, millis=duration)
 
 def turn_right(rob, speed, duration):
-    rob.move_blocking(left_speed=speed, right_speed=-speed, millis=duration)
+    rob.move_blocking(left_speed=speed*0.4, right_speed=-speed*0.4, millis=duration)
 
 
 class SimEnv2(gym.Env):
@@ -28,6 +28,8 @@ class SimEnv2(gym.Env):
         self.test_run = test_run
         self.step_count = 0
         self.max_steps = max_steps
+
+        self.total_reward = 0
 
         self.meal_count = 0
         self.img_width = 48
@@ -45,7 +47,10 @@ class SimEnv2(gym.Env):
             2: turn_right,
             3: turn_left
         }
-        action_map[action](self.rob, 60, 300)
+        # smaller step when rotating
+        action_map[action](self.rob, 75, 300)
+        #else:
+          #  action_map[action](self.rob, 30, 300)
 
         terminated = False
         truncated = False
@@ -68,19 +73,23 @@ class SimEnv2(gym.Env):
             reward = -25
             truncated = True
             self.rob.stop_simulation()
+        elif action == 1:
+            reward = -3
         else:
-            reward = -(observation['dist'] + 1)
+            reward = -(observation['dist'])
 
         self.step_count += 1
+        self.total_reward += reward
         return observation, reward, terminated, truncated, {}
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        self.rob.stop_simulation()
-        self.rob.play_simulation()
-
+        self.total_reward = 0
         self.step_count = 0
         self.meal_count = 0
+
+        self.rob.stop_simulation()
+        self.rob.play_simulation()
         observation = self._get_obs()
 
         # image = self.rob.get_image_front()

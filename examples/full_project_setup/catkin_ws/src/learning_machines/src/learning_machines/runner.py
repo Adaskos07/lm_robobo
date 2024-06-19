@@ -39,8 +39,8 @@ def robot_run(rob: IRobobo, max_steps,
                 model = DQN.load(MODELS_DIR / model_name, env=env)
             else:
                 model = DQN("MultiInputPolicy", env, verbose=1,
-                            learning_rate=0.01)
-            model.learn(total_timesteps=50, log_interval=5)
+                            learning_rate=0.01, gamma = 0.8)
+            model.learn(total_timesteps=1000, log_interval=5)
 
             print('Saving model')
             model.save(MODELS_DIR / model_name)
@@ -58,4 +58,7 @@ def robot_run(rob: IRobobo, max_steps,
                 2: turn_right,
                 3: turn_left
             }
-            action_map[action](rob, 60, 300)
+            if action < 2: # smaller step when rotating
+                action_map[action](rob, 100, 500)
+            else:
+                action_map[action](rob, 30, 300)
