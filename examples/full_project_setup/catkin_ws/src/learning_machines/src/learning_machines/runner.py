@@ -15,7 +15,8 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.env_checker import check_env
 
 # from .env1 import SimEnv1, move_back, move_forward, turn_left, turn_right
-from .env2 import SimEnv2, move_back, move_forward, turn_left, turn_right
+from .env2 import SimEnv2, HardEnv2, move_back, move_forward, turn_left, turn_right
+from .controller import HardController1
 
 def robot_run(rob: IRobobo, max_steps,
               test_run=False, model_name=None, from_checkpoint=False):
@@ -28,7 +29,7 @@ def robot_run(rob: IRobobo, max_steps,
             model = DQN.load(MODELS_DIR / model_name)
             observation, info = env.reset()
             while True:
-                action, _states = model.predict(observation, deterministic=True)
+                action, _states = model.predict(observation, deterministic=False)
 
                 observation, reward, terminated, truncated, info = env.step(action.item())
 
@@ -41,22 +42,20 @@ def robot_run(rob: IRobobo, max_steps,
             else:
                 model = DQN("MultiInputPolicy", env, verbose=1,
                             learning_rate=0.01)
-            model.learn(total_timesteps=1000, log_interval=5)
+            model.learn(total_timesteps=10_000, log_interval=5)
 
             print('Saving model')
             model.save(MODELS_DIR / model_name)
             print('Model saved')
  
     if isinstance(rob, HardwareRobobo):
+        print('Initialized hardware run')
+        env = HardEnv2(rob)
         model = DQN.load(MODELS_DIR / model_name)
+        print('Starting actions')
+        observation, info = env.reset()
+        print(observation)
 
         for _ in range(max_steps):
             action, _states = model.predict(observation, deterministic=True)
-            action = action.item()
-            action_map = {
-                0: move_forward,
-                1: move_back,
-                2: turn_right,
-                3: turn_left
-            }
-            action_map[action](rob, 60, 300)
+            observation, reward, terminated, truncated, info = env.step(action.item())

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # replace localhost with the port you see on the smartphone
-export ROS_MASTER_URI="http://localhost:11311"
+# export ROS_MASTER_URI="http://localhost:11311"
+export ROS_MASTER_URI="http://10.15.3.85:11311"
 
 # You want your local IP, usually starting with 192.168, following RFC1918
 # Windows powershell:
@@ -11,4 +12,4 @@ export ROS_MASTER_URI="http://localhost:11311"
 #    ipconfig getifaddr en1
 # export COPPELIA_SIM_IP="130.37.219.195"
 # export COPPELIA_SIM_IP="192.168.0.101"
-export COPPELIA_SIM_IP="130.37.219.236"
+export COPPELIA_SIM_IP="130.37.218.26"
