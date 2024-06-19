@@ -103,6 +103,8 @@ class SimEnv2(Env2):
             reward = -25
             truncated = True
             self.rob.stop_simulation()
+        elif action == 1:
+            reward = -3
         else:
             reward = -(observation['dist']) - 1
 
