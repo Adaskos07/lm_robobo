@@ -12,4 +12,6 @@ export ROS_MASTER_URI="http://10.15.3.85:11311"
 #    ipconfig getifaddr en1
 # export COPPELIA_SIM_IP="130.37.219.195"
 # export COPPELIA_SIM_IP="192.168.0.101"
-export COPPELIA_SIM_IP="130.37.218.26"
+# export COPPELIA_SIM_IP="130.37.218.26"
+# export COPPELIA_SIM_IP="10.15.3.126"
+export COPPELIA_SIM_IP="130.37.219.100"
