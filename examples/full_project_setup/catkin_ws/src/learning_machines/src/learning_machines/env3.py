@@ -46,6 +46,7 @@ class SimEnv3(gym.Env):
         self.captured = False
         
     def step(self, action):
+        print(self.rob.red_food_position(), self.rob.base_position(), self._calc_metric())
         action_map = {
             0: move_forward,
             1: move_back,
@@ -60,32 +61,33 @@ class SimEnv3(gym.Env):
 
         terminated = False
         truncated = False
-        reward = 0
+        reward = -1
 
         observation = self._get_obs()
 
-        print(observation['irs'][4], observation['dist_r'])
-        if observation['irs'][4] > 2 and observation['dist_r'] < 2:
-            self.captured = True
+        # print(observation['irs'][4], observation['dist_r'])
+        # if observation['irs'][4] > 2 and observation['dist_r'] < 2:
+        #     self.captured = True
 
-        if self.captured:
-            print('CAPTURED ', self.captured)
+        # if self.captured:
+        #     print('CAPTURED ', self.captured)
 
         if self.rob.base_detects_food():
-            reward += 100
+            reward += 500
             terminated = True
             self.rob.stop_simulation()
         elif self.step_count > self.max_steps:
+            reward += -self._calc_metric()
             truncated = True
             self.rob.stop_simulation()
-        else:
-            if action == 1:
-                self.captured = False
-                reward += -10
-            elif self.captured: 
-                reward = -(observation['dist_g']) - 1
-            else:
-                reward = -(observation['dist_r']) - 2
+        # else:
+        #     if action == 1:
+        #         self.captured = False
+        #         reward += -10
+        #     elif self.captured: 
+        #         reward = -(observation['dist_g']) - 1
+        #     else:
+        #         reward = -(observation['dist_r']) - 2
 
         self.step_count += 1
         self.total_reward += reward
@@ -95,7 +97,7 @@ class SimEnv3(gym.Env):
         super().reset(seed=seed, options=options)
         self.rob.stop_simulation()
         self.rob.play_simulation()
-        self.rob.sleep(0.3)
+        self.rob.sleep(0.2)
         self.total_reward = 0
         self.step_count = 0
         self.meal_count = 0
@@ -132,6 +134,16 @@ class SimEnv3(gym.Env):
         else:
             distance = np.digitize(distance, [self.img_width // 5, self.img_width // 2.5])
         return distance
+    
+    def _calc_metric(self):
+        base_xyz = self.rob.base_position()
+        red_food_xyz = self.rob.red_food_position()
+
+        xs = (base_xyz.x - red_food_xyz.x)**2
+        ys = (base_xyz.y - red_food_xyz.y)**2
+        distance = np.sqrt(xs + ys)
+        # scale to usable numbers
+        return int(distance * 100)
     
 
 class HardEnv3():
