@@ -46,7 +46,7 @@ class SimEnv3(gym.Env):
         self.captured = False
         
     def step(self, action):
-        print(self.rob.red_food_position(), self.rob.base_position(), self._calc_metric())
+        # print(self.rob.red_food_position(), self.rob.base_position(), self._calc_metric())
         action_map = {
             0: move_forward,
             1: move_back,
@@ -61,9 +61,8 @@ class SimEnv3(gym.Env):
 
         terminated = False
         truncated = False
-        reward = -1
-
         observation = self._get_obs()
+        reward = 0
 
         # print(observation['irs'][4], observation['dist_r'])
         # if observation['irs'][4] > 2 and observation['dist_r'] < 2:
@@ -72,22 +71,35 @@ class SimEnv3(gym.Env):
         # if self.captured:
         #     print('CAPTURED ', self.captured)
 
+        reward = -self._calc_metric()
+
         if self.rob.base_detects_food():
             reward += 500
             terminated = True
             self.rob.stop_simulation()
         elif self.step_count > self.max_steps:
-            reward += -self._calc_metric()
             truncated = True
             self.rob.stop_simulation()
-        # else:
-        #     if action == 1:
-        #         self.captured = False
-        #         reward += -10
-        #     elif self.captured: 
-        #         reward = -(observation['dist_g']) - 1
-        #     else:
-        #         reward = -(observation['dist_r']) - 2
+        else:
+            if action == 1:
+                # self.captured = False
+                reward += -5
+
+            if observation['irs'][2] > 2 and observation['irs'][3] > 2:
+                reward += -100
+            
+            # else:
+                # if observation['irs'][4] > 2 and observation['dist_r'] < 2:
+                #     reward += 1
+                    
+            # rg = -(observation['dist_g']) - 1
+            # rr = -(observation['dist_r']) - 3
+            # reward += rr + rg
+                
+            # elif self.captured: 
+            #     reward = -(observation['dist_g']) - 1
+            # else:
+            #     reward = -(observation['dist_r']) - 2
 
         self.step_count += 1
         self.total_reward += reward
@@ -97,7 +109,7 @@ class SimEnv3(gym.Env):
         super().reset(seed=seed, options=options)
         self.rob.stop_simulation()
         self.rob.play_simulation()
-        self.rob.sleep(0.2)
+        # self.rob.sleep(0.2)
         self.total_reward = 0
         self.step_count = 0
         self.meal_count = 0
@@ -112,9 +124,10 @@ class SimEnv3(gym.Env):
         irs_discrete = self._digitize_irs(irs)
 
         img = self.rob.get_image_front()
-        # if self.step_count == 1:
-            # hsv = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-            # cv2.imwrite(MODELS_DIR / 'red.jpg', hsv)
+        if self.step_count == 1:
+            hsv = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(MODELS_DIR / 'red_2.jpg', hsv)
+        
         distance_green = self._calc_dist(img)
         distance_red = self._calc_dist(img, green=False)
 
@@ -132,18 +145,28 @@ class SimEnv3(gym.Env):
         if distance is None:
             distance = 3
         else:
-            distance = np.digitize(distance, [self.img_width // 5, self.img_width // 2.5])
+            if green:
+                distance = np.digitize(distance, [self.img_width // 3.5, self.img_width // 2.5])
+            else:
+                distance = np.digitize(distance, [self.img_width // 3.5, self.img_width // 2.5])
         return distance
     
     def _calc_metric(self):
         base_xyz = self.rob.base_position()
         red_food_xyz = self.rob.red_food_position()
+        rob_xyz = self.rob.get_position()
 
         xs = (base_xyz.x - red_food_xyz.x)**2
         ys = (base_xyz.y - red_food_xyz.y)**2
-        distance = np.sqrt(xs + ys)
+        distance_red_green = np.sqrt(xs + ys)
+
+        rxs = (rob_xyz.x - red_food_xyz.x)**2
+        rys = (rob_xyz.y - red_food_xyz.y)**2
+        distance_rob_red = np.sqrt(rxs + rys)
+
         # scale to usable numbers
-        return int(distance * 100)
+        # return int(distance_red_green * 100) / 100 + int(distance_rob_red * 100) / 100
+        return int(distance_red_green * 100) / 100
     
 
 class HardEnv3():
@@ -156,8 +179,8 @@ class HardEnv3():
 
         self.action_space = Discrete(4)
         self.observation_space = Dict({
-            # 'irs': MultiDiscrete([5,5,5,5,5,5,5,5]),
-            'irs': MultiDiscrete([4,4,4,4,4,4,4,4]),
+            'irs': MultiDiscrete([5,5,5,5,5,5,5,5]),
+            # 'irs': MultiDiscrete([4,4,4,4,4,4,4,4]),
             'dist_g': Discrete(4),
             'dist_r': Discrete(4)
         })
@@ -231,5 +254,8 @@ class HardEnv3():
         if distance is None:
             distance = 3
         else:
-            distance = np.digitize(distance, [self.img_width // 5, self.img_width // 2.5])
+            if green:
+                distance = np.digitize(distance, [self.img_width // 3.5, self.img_width // 2.5])
+            else:
+                distance = np.digitize(distance, [self.img_width // 3.5, self.img_width // 2.5])
         return distance

@@ -38,14 +38,20 @@ def robot_run(rob: IRobobo, max_steps,
                 # if truncated:
                     observation, info = env.reset()
         else:
-            print(from_checkpoint)
+            print('LOADED FROM CHECKPOINT: ', from_checkpoint)
             if from_checkpoint:
-                model = DQN.load(MODELS_DIR / model_name, env=env)
+                model = DQN.load(MODELS_DIR / model_name,
+                                 tensorboard_log=RESULT_DIR / f'{model_name}_train.log')
+                model.set_env(env)
             else:
                 model = DQN("MultiInputPolicy", env, verbose=1,
-                            learning_rate=0.01, gamma=0.6,
+                            # buffer_size=100,
+                            learning_rate=0.01,
+                            gamma=0.6,
+                            exploration_fraction=0.4,
+                            exploration_final_eps=0.1,
                             tensorboard_log=RESULT_DIR / f'{model_name}_train.log')
-            model.learn(total_timesteps=2000, log_interval=5)
+            model.learn(total_timesteps=10000, log_interval=3)
 
             print('Saving model')
             model.save(MODELS_DIR / model_name)

@@ -6,4 +6,5 @@
 ${1:?"Specify the scene you want to load as a first argument"}
 
 # Presumes you have CoppeliaSim extracted to ./CoppeliaSim
-./CoppeliaSim/coppeliaSim.sh "$1" $3 "-GzmqRemoteApi.rpcPort=${2:-23000}"
+# ./CoppeliaSim/coppeliaSim.sh "$1" $3 "-GzmqRemoteApi.rpcPort=${2:-23000}"
+./CoppeliaSim/coppeliaSim.sh "$1" $3 "-GzmqRemoteApi.rpcPort=${2:-23000}" -H
